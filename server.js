@@ -18,9 +18,6 @@ mongoose
   .catch(err => console.log(err));
 
 
-const port = process.env.PORT || 3001;
-
-
 const articleSchema = new mongoose.Schema({
   title: String,
   link: String,
