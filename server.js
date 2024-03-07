@@ -5,10 +5,11 @@ const cheerio = require('cheerio');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+require('dotenv').config();
 
 const path = require('path');
 // DB Config
-const db = require('./config/keys').mongoURI;
+const db = process.env.mongoURI;
 
 // Connect to MongoDB
 mongoose
