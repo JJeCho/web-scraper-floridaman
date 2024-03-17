@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +28,8 @@ const articleSchema = new mongoose.Schema({
   authors: Array,
   date: String,
 });
+
+app.use(cors());
 
 const Article = mongoose.model('Article', articleSchema);
 
@@ -77,16 +80,17 @@ app.get('/scrape', async (req, res) => {
     }, (json) => {
       
       json.news_results.forEach((result) => {
+        console.log(result);
         
         const newArticle = new Article({
           title: result.title,
           link: result.link,
           image: result.thumbnail,
-          source: result.source.name,
-          authors: result.source.authors,
+          source: result.source ? result.source.name : result.name,
+          authors: result.source ? result.source.authors : [],
           date: result.date
         });
-        newArticle.save()
+        newArticle.save();
         articles.push(newArticle);
         console.log(newArticle);
       })
@@ -118,8 +122,25 @@ if (process.env.NODE_ENV === 'production') {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   });
+
+  app.get('/getImage', async (req, res) => {
+    const imageUrl = decodeURIComponent(req.query.url);
   
+    try {
+      const response = await fetch(imageUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
   
+      res.writeHead(200, {
+        'Content-Type': response.headers.get('content-type'),
+        'Content-Length': buffer.length
+      });
+      res.end(buffer);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error fetching image');
+    }
+  });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

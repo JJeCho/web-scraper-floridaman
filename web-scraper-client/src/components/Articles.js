@@ -47,6 +47,7 @@ const Articles = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
+               {article.image !== undefined && <img src={`/getImage?url=${encodeURIComponent(article.image)}`} alt={article.title} />}
               Read More
             </a>
           </div>
