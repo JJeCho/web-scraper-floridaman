@@ -5,16 +5,37 @@ import "./Articles.css";
 
 const Articles = () => {
   const [articles, setArticles] = useState([]);
-  const fetchData = () => {
-    axios
-      .get("/api/articles")
-      .then((response) => {
-        setArticles(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  const [search, setSearch] = useState('');
+  const [source, setSource] = useState('');
+  const [date, setDate] = useState('');
+  
+  const fetchData = async () => {
+    // Construct the query parameters based on the user input
+    let queryParams = '';
+    if (search) {
+      queryParams += `search=${search}&`;
+    }
+    if (source) {
+      queryParams += `source=${source}&`;
+    }
+    if (date) {
+      const parsedDate = new Date(date);
+      const formattedDate = parsedDate.toLocaleDateString('en-US');
+      queryParams += `date=${formattedDate}&`;
+    }
+
+    // Remove trailing '&' if any
+    if (queryParams.endsWith('&')) {
+      queryParams = queryParams.slice(0, -1);
+    }
+
+    // Make the API request with the constructed query parameters
+    const response = await fetch(`/api/articles?${queryParams}`);
+    const data = await response.json();
+
+    setArticles(data);
   };
+
 
   const handleScrape = () => {
     axios
@@ -36,6 +57,26 @@ const Articles = () => {
       <div>
         <h1 className="articles-header">Florida Man Articles</h1>
         <button onClick={handleScrape}>Scrape and Refresh</button>
+        <div>
+      <input
+        type="text"
+        placeholder="Search terms"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Desired source"
+        value={source}
+        onChange={(e) => setSource(e.target.value)}
+      />
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+      />
+      <button onClick={fetchData}>Fetch Articles</button>
+    </div>
       </div>
       <div className="articles-container">
         {articles.map((article) => (

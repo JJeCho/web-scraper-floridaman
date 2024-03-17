@@ -26,7 +26,7 @@ const articleSchema = new mongoose.Schema({
   image: String,
   source: String,
   authors: Array,
-  date: String,
+  date: Date,
 });
 
 app.use(cors());
@@ -34,9 +34,6 @@ app.use(cors());
 const Article = mongoose.model('Article', articleSchema);
 
 app.get('/scrape', async (req, res) => {
-  try {
-
-    
     /** 
     const scrapeUrl = 'https://news.google.com/search?q=Florida+Man'; // Update the URL to Google News
 
@@ -70,36 +67,39 @@ app.get('/scrape', async (req, res) => {
 
     res.json(articles);
     */
-    const articles = [];
+    try {
+      const json = await getJson({
+        api_key: process.env.APIKEY,
+        engine: "google_news",
+        gl: "us",
+        q: "florida man"
+      });
+  
+      const articles = json.news_results;
+  
+      for (const result of articles) {
+        // Check if the article already exists in the database based on title or URL
+        const existingArticle = await Article.findOne({ title: result.title });
+  
+        if (!existingArticle) {
+          // If the article does not exist, create a new article and save it
+          const newArticle = new Article({
+            title: result.title,
+            link: result.link,
+            image: result.thumbnail,
+            source: result.source ? result.source.name : result.name,
+            authors: result.source ? result.source.authors : [],
+            date: result.date
+          });
+  
+          await newArticle.save();
+        }
+      }
 
-    getJson({
-      api_key: process.env.APIKEY,
-      engine: "google_news",
-      gl: "us",
-      q: "florida man"
-    }, (json) => {
-      
-      json.news_results.forEach((result) => {
-        console.log(result);
-        
-        const newArticle = new Article({
-          title: result.title,
-          link: result.link,
-          image: result.thumbnail,
-          source: result.source ? result.source.name : result.name,
-          authors: result.source ? result.source.authors : [],
-          date: result.date
-        });
-        newArticle.save();
-        articles.push(newArticle);
-        console.log(newArticle);
-      })
-    });
-
-    res.json(articles)
+    res.json({ message: 'Scrape completed successfully' })
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ error: 'An error occurred during scraping' });
   }
 });
 
@@ -115,11 +115,37 @@ if (process.env.NODE_ENV === 'production') {
   // API endpoint to fetch articles
   app.get('/api/articles', async (req, res) => {
     try {
-      const articles = await Article.find().sort({ createdAt: -1 });;
+      // Extract query parameters from the request
+      const { search, source, date } = req.query;
+  
+      // Construct the filter object based on the provided query parameters
+      const filter = {};
+      
+      if (search) {
+        filter.title = { $regex: search, $options: 'i' }; // Case-insensitive search by title
+      }
+  
+      if (source) {
+        filter.source = { $regex: source, $options: 'i' };
+      }
+  
+      if (date) {
+        console.log(date);
+        const parsedDate = new Date(date);
+        console.log(parsedDate);
+        const startOfDay = new Date(parsedDate.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(parsedDate.setHours(23, 59, 59, 999));
+        
+        filter.date = { $gte: startOfDay, $lte: endOfDay };
+      }
+  
+      // Query the database with the constructed filter
+      const articles = await Article.find(filter);
+  
       res.json(articles);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(500).json({ error: 'An error occurred while fetching articles' });
     }
   });
 
