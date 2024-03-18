@@ -1,56 +1,110 @@
-/* Style the container for the articles component */
-:root {
-  --davys-gray: #5a5353ff;
-  --mountbatten-pink: #a07178ff;
-  --pale-dogwood: #e6ccbeff;
-  --chinese-violet: #776274ff;
-  --sage: #c8cc92ff;
+.articles-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: gray;
+  padding: 20px;
+}
+
+
+.articles-header {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  margin-bottom: 20px;
+}
+
+.input-container input {
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  margin: 2px
+}
+
+
+.fetchButton {
+  background-color: darkgray;
+}
+
+.scrapeButton {
+  background-color: lightgray;
 }
 
 .articles-container {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: lightgray;
+  padding: 20px;
 }
 
-/* Style the individual article */
 .article {
-  width: 28%;
-  /* Adjust the width as needed */
-  background-color: var(--chinese-violet);
+  position: relative;
+  width: 94%;
+  height: 200px;
+  background-color: lightgray;
   padding: 20px;
-  margin: 10px;
+  margin-bottom: 20px;
+  margin-left: 3%;
+  margin-right: 3%;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  
 }
 
-/* Style the article title */
 .article-title {
-  font-size: 1.5rem;
+  position: absolute;
+  top: 30%;
+  left: 0;
+  width: 60%;
+  font-size: 1rem;
   font-weight: bold;
-  margin-bottom: 10px;
-  color: var(--pale-dogwood);
+  color: black;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-/* Style the article link */
-.article-link {
-  color: var(--sage);
+.article img {
+  position: absolute;
+  top: 8%;
+  left: 65%;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.article-read-more {
+  position: absolute;
+  top: 30%;
+  right: 0;
+  width: 10%;
+  height: 30%;
+  background-color: lightgray;
+  padding: 10px;
+  box-sizing: border-box;
+  text-align: center;
   text-decoration: none;
 }
 
-.article-link:hover {
+.article-read-more span {
+  color: gray;
+  text-decoration: none;
+}
+
+
+.article-read-more span:hover {
   text-decoration: underline;
 }
 
-.articles-app {
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--mountbatten-pink);
-  font-family: Arial, sans-serif;
-  color: var(--pale-dogwood)
-}
 
-.articles-header {
-  padding-top: 2rem;
-}

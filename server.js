@@ -116,7 +116,7 @@ if (process.env.NODE_ENV === 'production') {
   app.get('/api/articles', async (req, res) => {
     try {
       // Extract query parameters from the request
-      const { search, source, date } = req.query;
+      const { search, source, date, number } = req.query;
   
       // Construct the filter object based on the provided query parameters
       const filter = {};
@@ -138,11 +138,14 @@ if (process.env.NODE_ENV === 'production') {
         
         filter.date = { $gte: startOfDay, $lte: endOfDay };
       }
-  
+
+      let limitNumber = parseInt(number) || 30;
       // Query the database with the constructed filter
-      const articles = await Article.find(filter);
-  
-      res.json(articles);
+      const articles = await Article.find(filter)
+      .limit(limitNumber)
+      .sort({ date: -1 }); // Sort by date in descending order (newest to oldest)
+
+    res.json(articles);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'An error occurred while fetching articles' });
