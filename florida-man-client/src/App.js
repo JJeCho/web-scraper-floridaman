@@ -1,11 +1,11 @@
-import React from 'react';
+import logo from './logo.svg';
+import './App.css';
 import Articles from './components/Articles';
-import Multiverse from './components/Multiverse';
 
 function App() {
   return (
     <div className="App">
-      <Multiverse />
+      <Articles></Articles>
     </div>
   );
 }
